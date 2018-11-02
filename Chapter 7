@@ -1,0 +1,405 @@
+REPORT z_mastering-chap7.
+
+DATA:
+  BEGIN OF ls_coloring_rows.
+    INCLUDE STRUCTURE spfli.
+DATA icon TYPE icon_int.
+DATA button(5) TYPE c.
+DATA rowcolor(4) TYPE c.
+DATA cellcolors TYPE lvc_t_scol.
+DATA cellstyles TYPE lvc_t_styl.
+DATA END OF ls_coloring_rows.
+
+CLASS lcl_event_handler DEFINITION .
+  PUBLIC SECTION .
+    METHODS: handle_button_click FOR EVENT button_click OF cl_gui_alv_grid
+      IMPORTING
+          es_col_id es_row_no.
+ENDCLASS.
+
+CLASS lcl_event_handler IMPLEMENTATION.
+  METHOD handle_button_click.
+
+    CALL FUNCTION 'POPUP_TO_DISPLAY_TEXT'
+      EXPORTING
+        textline1 = 'Mastering ABAP'.
+
+  ENDMETHOD .
+ENDCLASS .
+
+
+DATA: lt_color LIKE TABLE OF ls_coloring_rows.
+
+DATA: lv_connid     TYPE s_conn_id.
+
+DATA: lt_spfli         TYPE TABLE OF spfli,
+      lr_alv           TYPE REF TO cl_gui_alv_grid,
+      lr_ccontainer    TYPE REF TO cl_gui_custom_container,
+      ok_code          TYPE sy-ucomm,
+      ls_layout        TYPE lvc_s_layo,
+
+      lr_event_handler TYPE REF TO lcl_event_handler,
+
+      gv_carrid        TYPE s_carr_id,
+      gv_connid        TYPE s_conn_id,
+      gv_type          TYPE c,
+      gv_domestic      TYPE c,
+      gv_international TYPE c.
+
+
+CONSTANTS: lc_container_name TYPE scrfname VALUE 'ALV'.
+
+SELECTION-SCREEN BEGIN OF BLOCK b1 WITH FRAME TITLE TEXT-000.
+PARAMETERS: p_car TYPE s_carr_id.
+SELECT-OPTIONS: s_con FOR lv_connid.
+PARAMETERS: p_type TYPE c AS CHECKBOX USER-COMMAND uc1.
+SELECTION-SCREEN END OF BLOCK b1.
+
+SELECTION-SCREEN BEGIN OF BLOCK b2 WITH FRAME TITLE TEXT-001.
+
+PARAMETERS: p_dom TYPE c RADIOBUTTON GROUP rb1 MODIF ID b2,
+            p_int TYPE c RADIOBUTTON GROUP rb1 MODIF ID b2.
+
+SELECTION-SCREEN END OF BLOCK b2.
+
+AT SELECTION-SCREEN OUTPUT.
+
+  LOOP AT SCREEN.
+
+    IF p_type = abap_true AND screen-group1 = 'B2'.
+      screen-active = 1.
+    ELSEIF p_type = abap_false AND screen-group1 = 'B2'.
+      screen-active = 0.
+    ENDIF.
+
+    MODIFY SCREEN.
+  ENDLOOP.
+
+START-OF-SELECTION.
+
+  IF p_dom EQ abap_true AND p_car IS NOT INITIAL.
+
+    SELECT carrid connid
+           countryfr cityfrom airpfrom
+           countryto cityto airpto
+           fltime deptime arrtime distance
+           distid fltype period
+      FROM spfli AS s
+      INTO CORRESPONDING FIELDS OF TABLE lt_color
+      WHERE carrid = p_car
+        AND connid IN s_con
+        AND countryfr EQ s~countryto.
+
+  ELSEIF p_dom EQ abap_true AND p_car IS  INITIAL.
+
+    SELECT carrid connid
+           countryfr cityfrom airpfrom
+           countryto cityto airpto
+           fltime deptime arrtime distance
+           distid fltype period
+      FROM spfli AS s
+      INTO CORRESPONDING FIELDS OF TABLE lt_color
+      WHERE connid IN s_con
+        AND countryfr EQ s~countryto.
+
+  ELSEIF p_int EQ abap_true AND p_car IS NOT INITIAL.
+
+    SELECT carrid connid
+           countryfr cityfrom airpfrom
+           countryto cityto airpto
+           fltime deptime arrtime distance
+           distid fltype period
+      FROM spfli AS s
+      INTO CORRESPONDING FIELDS OF TABLE lt_color
+      WHERE carrid = p_car
+        AND connid IN s_con
+        AND countryfr NE s~countryto.
+
+  ELSEIF p_int EQ abap_true AND p_car IS INITIAL.
+
+    SELECT carrid connid
+           countryfr cityfrom airpfrom
+           countryto cityto airpto
+           fltime deptime arrtime distance
+           distid fltype period
+      FROM spfli AS s
+      INTO CORRESPONDING FIELDS OF TABLE lt_color
+      WHERE carrid = p_car
+        AND connid IN s_con
+        AND countryfr NE s~countryto.
+
+  ELSEIF p_car IS INITIAL AND p_int IS INITIAL AND p_dom IS INITIAL.
+
+    SELECT carrid connid
+           countryfr cityfrom airpfrom
+           countryto cityto airpto
+           fltime deptime arrtime distance
+           distid fltype period
+      FROM spfli AS s
+      INTO CORRESPONDING FIELDS OF TABLE lt_color
+      WHERE connid IN s_con.
+
+  ENDIF.
+
+  CALL SCREEN 100.
+
+*&---------------------------------------------------------------------*
+*& Module PBO_100 OUTPUT
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+MODULE pbo_100 OUTPUT.
+  SET PF-STATUS 'STATUS_100'.
+  SET TITLEBAR 'TITLEBAR_100'.
+
+
+  LOOP AT SCREEN.
+    IF gv_type = ''.
+      IF screen-group1 = 'GR1'.
+        screen-input = 0.
+        screen-invisible = 1.
+      ENDIF.
+    ELSE.
+      IF screen-group1 = 'GR1'.
+        screen-input = 1.
+        screen-invisible = 0.
+      ENDIF.
+    ENDIF.
+    MODIFY SCREEN.
+  ENDLOOP.
+
+  DATA: ls_fcat   TYPE lvc_s_fcat,
+        lt_fcat   TYPE lvc_t_fcat,
+        ls_ccolor TYPE lvc_s_scol,
+        ls_style  TYPE lvc_s_styl.
+
+  IF lr_ccontainer IS NOT BOUND.
+
+    CREATE OBJECT lr_ccontainer
+      EXPORTING
+        container_name = lc_container_name.
+
+    CREATE OBJECT lr_alv
+      EXPORTING
+        i_parent = lr_ccontainer.
+
+    ls_fcat-fieldname = 'CARRID'.
+    ls_fcat-scrtext_s = 'Airline Code'.
+    ls_fcat-outputlen = 4.
+
+    ls_fcat-emphasize = 'C300'.
+
+    APPEND ls_fcat TO lt_fcat.
+    CLEAR ls_fcat.
+
+    ls_fcat-fieldname = 'BUTTON'.
+    ls_fcat-scrtext_s = 'Button'.
+    ls_fcat-outputlen = 6.
+    APPEND ls_fcat TO lt_fcat.
+    CLEAR ls_fcat.
+
+    ls_fcat-fieldname = 'CONNID'.
+    ls_fcat-scrtext_s = 'Flight Connection Number'.
+    ls_fcat-auto_value = 'X'.
+    ls_fcat-outputlen = 4.
+    APPEND ls_fcat TO lt_fcat.
+    CLEAR ls_fcat.
+
+    ls_fcat-fieldname = 'COUNTRYFR'.
+    ls_fcat-scrtext_s = 'Country Key'.
+    ls_fcat-auto_value = 'X'.
+    ls_fcat-outputlen = 4.
+    APPEND ls_fcat TO lt_fcat.
+    CLEAR ls_fcat.
+
+    ls_fcat-fieldname = 'CITYFROM'.
+    ls_fcat-scrtext_s = 'Departure city'.
+    ls_fcat-auto_value = 'X'.
+    ls_fcat-outputlen = 20.
+    APPEND ls_fcat TO lt_fcat.
+    CLEAR ls_fcat.
+
+    ls_fcat-fieldname = 'AIRPFROM'.
+    ls_fcat-scrtext_s = 'Departure airport'.
+    ls_fcat-auto_value = 'X'.
+    ls_fcat-outputlen = 3.
+    APPEND ls_fcat TO lt_fcat.
+    CLEAR ls_fcat.
+
+    ls_fcat-fieldname = 'COUNTRYTO'.
+    ls_fcat-scrtext_s = 'Country Key'.
+    ls_fcat-auto_value = 'X'.
+    ls_fcat-outputlen = 3.
+    APPEND ls_fcat TO lt_fcat.
+    CLEAR ls_fcat.
+
+    ls_fcat-fieldname = 'CITYTO'.
+    ls_fcat-scrtext_s = 'Arrival city'.
+    ls_fcat-auto_value = 'X'.
+    ls_fcat-outputlen = 20.
+    APPEND ls_fcat TO lt_fcat.
+    CLEAR ls_fcat.
+
+    ls_fcat-fieldname = 'AIRPTO'.
+    ls_fcat-scrtext_s = 'Destination airport'.
+    ls_fcat-auto_value = 'X'.
+    ls_fcat-outputlen = 20.
+    APPEND ls_fcat TO lt_fcat.
+    CLEAR ls_fcat.
+
+    ls_fcat-fieldname = 'FLTIME'.
+    ls_fcat-scrtext_s = 'Flight time'.
+    ls_fcat-auto_value = 'X'.
+    ls_fcat-outputlen = 10.
+    APPEND ls_fcat TO lt_fcat.
+    CLEAR ls_fcat.
+
+    ls_fcat-fieldname = 'DEPTIME'.
+    ls_fcat-scrtext_s = 'Departure time'.
+    ls_fcat-auto_value = 'X'.
+    ls_fcat-outputlen = 6.
+    APPEND ls_fcat TO lt_fcat.
+    CLEAR ls_fcat.
+
+    ls_fcat-fieldname = 'ARRTIME'.
+    ls_fcat-scrtext_s = 'Arrival time'.
+    ls_fcat-auto_value = 'X'.
+    ls_fcat-outputlen = 6.
+    APPEND ls_fcat TO lt_fcat.
+    CLEAR ls_fcat.
+
+    ls_fcat-fieldname = 'DISTANCE'.
+    ls_fcat-scrtext_s = 'Distance'.
+    ls_fcat-auto_value = 'X'.
+    ls_fcat-outputlen = 9.
+    APPEND ls_fcat TO lt_fcat.
+    CLEAR ls_fcat.
+
+    ls_fcat-fieldname = 'DISTID'.
+    ls_fcat-scrtext_s = 'UNIT'.
+    ls_fcat-auto_value = 'X'.
+    ls_fcat-outputlen = 3.
+    APPEND ls_fcat TO lt_fcat.
+    CLEAR ls_fcat.
+
+    ls_fcat-fieldname = 'ICON'.
+    ls_fcat-scrtext_s = 'Charter?'.
+    ls_fcat-auto_value = 'X'.
+    ls_fcat-icon = 'X'.
+    APPEND ls_fcat TO lt_fcat.
+    CLEAR ls_fcat.
+
+    ls_fcat-fieldname = 'PERIOD'.
+    ls_fcat-scrtext_s = 'Arrival n day(s) later'.
+    ls_fcat-auto_value = 'X'.
+    ls_fcat-outputlen = 3.
+    APPEND ls_fcat TO lt_fcat.
+    CLEAR ls_fcat.
+
+    LOOP AT lt_color ASSIGNING FIELD-SYMBOL(<fs_color>) WHERE carrid = 'AA'.
+      <fs_color>-rowcolor = 'C500'.
+    ENDLOOP.
+
+    LOOP AT lt_color ASSIGNING FIELD-SYMBOL(<fs_cellcolor>) WHERE airpto = 'JFK'.
+      ls_ccolor-fname = 'AIRPTO'.
+      ls_ccolor-color-col = '7'.
+      ls_ccolor-color-int = '1'.
+      APPEND ls_ccolor TO <fs_cellcolor>-cellcolors.
+    ENDLOOP.
+
+    LOOP AT lt_color ASSIGNING FIELD-SYMBOL(<fs_cellstyle>).
+      <fs_cellstyle>-button = 'Click'.
+      ls_style-fieldname = 'BUTTON'.
+      ls_style-style = cl_gui_alv_grid=>mc_style_button.
+      APPEND ls_style TO <fs_cellstyle>-cellstyles.
+    ENDLOOP.
+
+    ls_layout-zebra = abap_true.
+
+    ls_layout-stylefname = 'CELLSTYLES'.
+
+    LOOP AT lt_color ASSIGNING FIELD-SYMBOL(<ls_icon>).
+      IF <ls_icon>-fltype = 'X'.
+        <ls_icon>-icon = '@B_OKAY@'.
+      ELSEIF <ls_icon>-fltype IS INITIAL.
+        <ls_icon>-icon = '@B_CANC@'.
+      ENDIF.
+    ENDLOOP.
+
+    ls_layout-info_fname = 'ROWCOLOR'.
+    ls_layout-ctab_fname = 'CELLCOLORS'.
+
+    CREATE OBJECT lr_event_handler .
+
+    SET HANDLER lr_event_handler->handle_button_click FOR lr_alv .
+
+    CALL METHOD lr_alv->set_table_for_first_display
+      EXPORTING
+        is_layout       = ls_layout
+      CHANGING
+        it_outtab       = lt_color
+        it_fieldcatalog = lt_fcat.
+
+  ELSE.
+
+    lr_alv->refresh_table_display( ).
+
+  ENDIF.
+
+*      i_structure_name              = 'SPFLI'
+ENDMODULE.
+*&---------------------------------------------------------------------*
+*&      Module  PAI_100  INPUT
+*&---------------------------------------------------------------------*
+*       text
+*----------------------------------------------------------------------*
+MODULE pai_100 INPUT.
+
+  DATA: lv_dyn_where TYPE string.
+
+  CASE ok_code.
+    WHEN 'BACK'.
+      LEAVE TO SCREEN 0.
+    WHEN 'CANCEL'.
+      LEAVE TO SCREEN 0.
+      LEAVE PROGRAM.
+    WHEN 'EXIT'.
+      LEAVE PROGRAM.
+    WHEN 'RES'.
+
+      IF gv_carrid IS NOT INITIAL AND lv_dyn_where IS INITIAL.
+        CONCATENATE 'carrid = gv_carrid' '' INTO lv_dyn_where SEPARATED BY space.
+      ENDIF.
+
+      IF gv_connid IS NOT INITIAL AND lv_dyn_where IS INITIAL.
+        CONCATENATE 'connid = gv_connid' '' INTO lv_dyn_where SEPARATED BY space.
+      ELSEIF gv_connid IS NOT INITIAL AND lv_dyn_where IS NOT INITIAL.
+        CONCATENATE lv_dyn_where 'and connid = gv_connid' INTO lv_dyn_where SEPARATED BY space.
+      ENDIF.
+
+      IF gv_domestic IS NOT INITIAL AND lv_dyn_where IS INITIAL.
+        CONCATENATE 'countryfr EQ s~countryto' '' INTO lv_dyn_where SEPARATED BY space.
+      ELSEIF gv_domestic IS NOT INITIAL AND lv_dyn_where IS INITIAL.
+        CONCATENATE lv_dyn_where 'and countryfr EQ s~countryto' INTO lv_dyn_where SEPARATED BY space.
+      ENDIF.
+
+
+      IF gv_international IS NOT INITIAL AND lv_dyn_where IS INITIAL.
+        CONCATENATE 'countryfr NE s~countryto' '' INTO lv_dyn_where SEPARATED BY space.
+      ELSEIF gv_international IS NOT INITIAL AND lv_dyn_where IS INITIAL.
+        CONCATENATE lv_dyn_where 'and countryfr NE s~countryto' INTO lv_dyn_where SEPARATED BY space.
+      ENDIF.
+
+      SELECT carrid connid
+             countryfr cityfrom airpfrom
+             countryto cityto airpto
+             fltime deptime arrtime distance
+             distid fltype period
+        FROM spfli AS s
+        INTO CORRESPONDING FIELDS OF TABLE lt_color
+        WHERE (lv_dyn_where).
+
+      CLEAR lv_dyn_where.
+  ENDCASE.
+
+ENDMODULE.
