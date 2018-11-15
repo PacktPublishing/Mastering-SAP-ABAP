@@ -1,4 +1,4 @@
-REPORT z_mastering-chap7.
+REPORT z_mastering_chap7.
 
 DATA:
   BEGIN OF ls_coloring_rows.
