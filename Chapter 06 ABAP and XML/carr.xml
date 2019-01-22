@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<AIRLINES>
+	<SCARR>
+	  <CARRID>A2</CARRID>
+	  <CARRNAME>Antarctica Airlines</CARRNAME>
+	  <CURRCODE>AQD</CURRCODE>
+	  <URL>http://antarcticaairlines.aq</URL>
+	</SCARR>
+</AIRLINES>
+
