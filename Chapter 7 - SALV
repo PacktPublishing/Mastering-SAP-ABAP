@@ -1,0 +1,52 @@
+REPORT z_mastering_chapter7_salv.
+
+TYPES:
+  BEGIN OF t_raport,
+    it_colors TYPE lvc_t_scol.
+    INCLUDE     TYPE spfli.
+TYPES END OF t_raport.
+
+DATA: lt_raport  TYPE TABLE OF t_raport,
+      lr_alv     TYPE REF TO cl_salv_table,
+      gs_color   TYPE lvc_s_scol,
+      lr_display TYPE REF TO cl_salv_display_settings,
+      lr_columns TYPE REF TO cl_salv_columns_table,
+      lr_column  TYPE REF TO cl_salv_column_table.
+
+START-OF-SELECTION.
+
+  SELECT carrid connid
+         countryfr cityfrom airpfrom
+         countryto cityto airpto
+         fltime deptime arrtime distance
+         distid fltype period
+    FROM spfli
+    INTO CORRESPONDING FIELDS OF TABLE lt_raport.
+
+  CALL METHOD cl_salv_table=>factory
+    IMPORTING
+      r_salv_table = lr_alv
+    CHANGING
+      t_table      = lt_raport.
+
+  lr_display = lr_alv->get_display_settings( ).
+  lr_display->set_striped_pattern( value = 'X' ).
+
+  LOOP AT lt_raport ASSIGNING FIELD-SYMBOL(<ls_raport>).
+    IF <ls_raport>-carrid = 'AA'.
+      gs_color-color-col = 5.
+      gs_color-color-int = 0.
+      APPEND gs_color TO <ls_raport>-it_colors.
+    ENDIF.
+
+  ENDLOOP.
+
+  lr_columns = lr_alv->get_columns( ).
+
+  lr_columns->set_optimize( value = 'X' ).
+  lr_columns->set_color_column( value = 'IT_COLORS' ).
+
+  lr_column ?= lr_columns->get_column( columnname = 'MANDT' ).
+  lr_column->set_visible( value = ' ' ).
+
+  lr_alv->display( ).
