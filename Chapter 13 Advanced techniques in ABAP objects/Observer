@@ -1,0 +1,106 @@
+*&---------------------------------------------------------------------*
+*& Report Z_OBSERVER
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT z_observer.
+
+CLASS zcl_app DEFINITION.
+  PUBLIC SECTION.
+    CLASS-METHODS: run.
+ENDCLASS.
+
+CLASS zcl_observator DEFINITION.
+  PUBLIC SECTION.
+
+    TYPES:
+      BEGIN OF t_user,
+        username TYPE string,
+      END OF t_user,
+
+      tt_user TYPE TABLE OF t_user.
+
+    DATA: lt_user TYPE tt_user.
+
+    METHODS: create_doc IMPORTING doc_type TYPE string,
+      constructor.
+
+    EVENTS: new EXPORTING VALUE(doc_type) TYPE string.
+ENDCLASS.
+
+CLASS zcl_user DEFINITION ABSTRACT.
+  PUBLIC SECTION.
+
+    METHODS: notify_user ABSTRACT FOR EVENT new OF zcl_observator
+      IMPORTING doc_type.
+
+ENDCLASS.
+
+CLASS zcl_user1 DEFINITION INHERITING FROM  zcl_user.
+  PUBLIC SECTION.
+    METHODS notify_user REDEFINITION .
+ENDCLASS.
+
+CLASS zcl_user2 DEFINITION INHERITING FROM  zcl_user.
+  PUBLIC SECTION.
+    METHODS notify_user REDEFINITION.
+ENDCLASS.
+
+CLASS zcl_observator IMPLEMENTATION.
+  METHOD create_doc.
+    RAISE EVENT new EXPORTING doc_type = doc_type.
+  ENDMETHOD.
+  METHOD constructor.
+
+    DATA: ls_user TYPE t_user.
+
+    CLEAR ls_user.
+    ls_user-username = 'user1'.
+    APPEND ls_user TO lt_user.
+
+    CLEAR ls_user.
+    ls_user-username = 'user2'.
+    APPEND ls_user TO lt_user.
+
+  ENDMETHOD.
+ENDCLASS.
+
+CLASS zcl_user1 IMPLEMENTATION.
+  METHOD notify_user.
+
+    WRITE: / 'Notification User1 - New document', doc_type .
+
+  ENDMETHOD.
+ENDCLASS.
+
+CLASS  zcl_user2 IMPLEMENTATION.
+  METHOD notify_user.
+
+    WRITE: / 'Notification User2 - New document', doc_type.
+
+  ENDMETHOD.
+ENDCLASS.
+
+CLASS zcl_app IMPLEMENTATION.
+  METHOD run.
+
+    DATA: lr_observator TYPE REF TO zcl_observator,
+          lr_user1      TYPE REF TO zcl_user1,
+          lr_user2      TYPE REF TO zcl_user2.
+
+    CREATE OBJECT: lr_observator.
+    CREATE OBJECT: lr_user1.
+    CREATE OBJECT: lr_user2.
+
+    SET HANDLER lr_user1->notify_user FOR lr_observator.
+    SET HANDLER lr_user2->notify_user FOR lr_observator.
+
+    lr_observator->create_doc( 'Order' ).
+    lr_observator->create_doc( 'Invoice' ).
+
+  ENDMETHOD.
+ENDCLASS.
+
+START-OF-SELECTION.
+
+  zcl_app=>run( ).
