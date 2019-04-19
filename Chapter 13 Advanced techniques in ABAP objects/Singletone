@@ -1,0 +1,37 @@
+*&---------------------------------------------------------------------*
+*& Report Z_SINGLETONE
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT z_singletone.
+
+CLASS zcl_singletone DEFINITION.
+
+  PUBLIC SECTION.
+
+    CLASS-DATA: lr_singletone TYPE REF TO zcl_singletone.
+
+    CLASS-METHODS: class_constructor,
+      run.
+
+    METHODS constructor.
+
+ENDCLASS.
+
+CLASS zcl_singletone IMPLEMENTATION.
+  METHOD class_constructor.
+    IF zcl_singletone=>lr_singletone IS NOT BOUND.
+      CREATE OBJECT zcl_singletone=>lr_singletone.
+    ENDIF.
+  ENDMETHOD.
+
+  METHOD run.
+  ENDMETHOD.
+
+  METHOD constructor.
+    WRITE: 'Singletone instances created'.
+  ENDMETHOD.
+ENDCLASS.
+
+START-OF-SELECTION.
+  zcl_singletone=>run( ).
