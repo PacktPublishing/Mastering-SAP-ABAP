@@ -1,0 +1,172 @@
+*&---------------------------------------------------------------------*
+*& Report Z_DECORATOR
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT z_decorator.
+
+CLASS zcl_doc_output DEFINITION ABSTRACT.
+  PUBLIC SECTION.
+    METHODS:
+      zcl_doc_output ABSTRACT.
+ENDCLASS.
+
+
+CLASS zcl_sd_doc_output DEFINITION INHERITING FROM zcl_doc_output.
+  PUBLIC SECTION.
+    METHODS:
+      zcl_doc_output REDEFINITION.
+ENDCLASS.
+
+CLASS zcl_sd_doc_output IMPLEMENTATION.
+  METHOD zcl_doc_output.
+    WRITE: / 'Standard SD doc output'.
+  ENDMETHOD.
+ENDCLASS.
+
+CLASS zcl_decorator DEFINITION INHERITING FROM zcl_doc_output.
+  PUBLIC SECTION.
+    METHODS:
+      constructor
+        IMPORTING ir_decorator TYPE REF TO zcl_doc_output,
+
+      zcl_doc_output REDEFINITION.
+
+  PRIVATE SECTION.
+
+    DATA: lr_decorator TYPE REF TO zcl_doc_output.
+ENDCLASS.
+
+
+CLASS zcl_decorator IMPLEMENTATION.
+
+  METHOD constructor.
+    super->constructor( ).
+    me->lr_decorator = ir_decorator.
+  ENDMETHOD.
+
+  METHOD zcl_doc_output.
+    CHECK lr_decorator IS BOUND.
+    lr_decorator->zcl_doc_output( ).
+
+  ENDMETHOD.
+
+ENDCLASS.
+
+
+CLASS zcl_inquiry DEFINITION INHERITING FROM zcl_decorator.
+
+  PUBLIC SECTION.
+    METHODS: zcl_doc_output REDEFINITION.
+
+ENDCLASS.
+
+CLASS zcl_inquiry IMPLEMENTATION.
+  METHOD zcl_doc_output.
+    WRITE: / 'Generating Inquiry'.
+  ENDMETHOD.
+ENDCLASS.
+
+CLASS zcl_contract DEFINITION INHERITING FROM zcl_decorator.
+
+  PUBLIC SECTION.
+    METHODS: zcl_doc_output REDEFINITION.
+
+ENDCLASS.
+
+CLASS zcl_contract IMPLEMENTATION.
+  METHOD zcl_doc_output.
+    WRITE: / 'Generating Contract'.
+  ENDMETHOD.
+ENDCLASS.
+
+CLASS zcl_sched_agree DEFINITION INHERITING FROM zcl_decorator.
+
+  PUBLIC SECTION.
+    METHODS: zcl_doc_output REDEFINITION.
+
+ENDCLASS.
+
+CLASS zcl_sched_agree IMPLEMENTATION.
+  METHOD zcl_doc_output.
+    WRITE: / 'Generating Scheduling Agreements'.
+  ENDMETHOD.
+ENDCLASS.
+
+CLASS zcl_sales_order DEFINITION INHERITING FROM zcl_decorator.
+
+  PUBLIC SECTION.
+    METHODS: zcl_doc_output REDEFINITION.
+
+ENDCLASS.
+
+CLASS zcl_sales_order IMPLEMENTATION.
+  METHOD zcl_doc_output.
+    WRITE: / 'Generating Sales Order'.
+  ENDMETHOD.
+ENDCLASS.
+
+CLASS zcl_deliv_doc DEFINITION INHERITING FROM zcl_decorator.
+
+  PUBLIC SECTION.
+    METHODS: zcl_doc_output REDEFINITION.
+
+ENDCLASS.
+
+CLASS zcl_deliv_doc IMPLEMENTATION.
+  METHOD zcl_doc_output.
+    WRITE: / 'Generating Delivery document'.
+  ENDMETHOD.
+ENDCLASS.
+
+CLASS zcl_main DEFINITION.
+  PUBLIC SECTION.
+    CLASS-METHODS:
+      run.
+ENDCLASS.
+
+CLASS zcl_main IMPLEMENTATION.
+  METHOD run.
+
+    DATA: lr_decorator       TYPE REF TO zcl_doc_output,
+          lr_decorator_inq   TYPE REF TO zcl_doc_output,
+          lr_decorator_cont  TYPE REF TO zcl_doc_output,
+          lr_decorator_sched TYPE REF TO zcl_doc_output,
+          lr_decorator_sales TYPE REF TO zcl_doc_output,
+          lr_decorator_deliv TYPE REF TO zcl_doc_output.
+
+    CREATE OBJECT lr_decorator TYPE zcl_sd_doc_output.
+
+    CREATE OBJECT lr_decorator_inq TYPE zcl_inquiry
+      EXPORTING
+        ir_decorator = lr_decorator.
+
+    CREATE OBJECT lr_decorator_cont TYPE zcl_contract
+      EXPORTING
+        ir_decorator = lr_decorator.
+
+    CREATE OBJECT lr_decorator_sched TYPE zcl_sched_agree
+      EXPORTING
+        ir_decorator = lr_decorator.
+
+    CREATE OBJECT lr_decorator_sales TYPE zcl_sales_order
+      EXPORTING
+        ir_decorator = lr_decorator.
+
+    CREATE OBJECT lr_decorator_deliv TYPE zcl_deliv_doc
+      EXPORTING
+        ir_decorator = lr_decorator.
+
+    lr_decorator->zcl_doc_output( ).
+    lr_decorator_inq->zcl_doc_output( ).
+    lr_decorator_cont->zcl_doc_output( ).
+    lr_decorator_sched->zcl_doc_output( ).
+    lr_decorator_sales->zcl_doc_output( ).
+    lr_decorator_deliv->zcl_doc_output( ).
+
+  ENDMETHOD.
+ENDCLASS.
+
+
+START-OF-SELECTION.
+  zcl_main=>run( ).
