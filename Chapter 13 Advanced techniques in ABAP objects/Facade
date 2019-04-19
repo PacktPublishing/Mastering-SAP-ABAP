@@ -1,0 +1,111 @@
+*&---------------------------------------------------------------------*
+*& Report Z_FACADE
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT z_facade.
+
+INTERFACE lif_order.
+  METHODS: create_order.
+ENDINTERFACE.
+
+CLASS zcl_facade DEFINITION.
+  PUBLIC SECTION.
+    METHODS: process_order.
+ENDCLASS.
+
+CLASS zcl_order DEFINITION.
+  PUBLIC SECTION.
+    METHODS: constructor.
+    METHODS: create_order.
+
+ENDCLASS.
+
+CLASS zcl_check DEFINITION.
+  PUBLIC SECTION.
+    INTERFACES: lif_order.
+
+    ALIASES: create_order FOR lif_order~create_order.
+ENDCLASS.
+
+CLASS zcl_fill_form DEFINITION.
+  PUBLIC SECTION.
+    INTERFACES: lif_order.
+
+    ALIASES: create_order FOR lif_order~create_order.
+ENDCLASS.
+
+CLASS zcl_pay DEFINITION.
+  PUBLIC SECTION.
+    INTERFACES: lif_order.
+
+    ALIASES: create_order FOR lif_order~create_order.
+ENDCLASS.
+
+CLASS zcl_create_delivery DEFINITION.
+  PUBLIC SECTION.
+    INTERFACES: lif_order.
+
+    ALIASES: create_order FOR lif_order~create_order.
+ENDCLASS.
+
+CLASS zcl_check IMPLEMENTATION.
+  METHOD lif_order~create_order.
+    WRITE: / 'Check availability of product: OK '.
+  ENDMETHOD.
+ENDCLASS.
+CLASS zcl_fill_form IMPLEMENTATION.
+  METHOD lif_order~create_order.
+    WRITE: / 'Filling the form: OK'.
+  ENDMETHOD.
+ENDCLASS.
+CLASS zcl_pay IMPLEMENTATION.
+  METHOD lif_order~create_order.
+    WRITE: / 'Pay the check: OK'.
+  ENDMETHOD.
+ENDCLASS.
+CLASS zcl_create_delivery IMPLEMENTATION.
+  METHOD lif_order~create_order.
+    WRITE: / 'Create data for delivery: OK'.
+  ENDMETHOD.
+ENDCLASS.
+
+CLASS zcl_facade IMPLEMENTATION.
+  METHOD process_order.
+    DATA: lr_order TYPE REF TO zcl_order.
+
+    CREATE OBJECT lr_order.
+
+    lr_order->create_order( ).
+
+  ENDMETHOD.
+ENDCLASS.
+
+CLASS zcl_order IMPLEMENTATION.
+  METHOD constructor.
+    WRITE: / 'Create order'.
+  ENDMETHOD.
+  METHOD create_order.
+
+    DATA: lr_check TYPE REF TO zcl_check,
+          lr_fill  TYPE REF TO zcl_fill_form,
+          lr_pay   TYPE REF TO zcl_pay,
+          lr_deliv TYPE REF TO zcl_create_delivery.
+
+    CREATE OBJECT lr_check.
+    CREATE OBJECT lr_fill.
+    CREATE OBJECT lr_pay.
+    CREATE OBJECT lr_deliv.
+
+    lr_check->create_order( ).
+    lr_fill->create_order( ).
+    lr_pay->create_order( ).
+    lr_deliv->create_order( ).
+
+  ENDMETHOD.
+ENDCLASS.
+
+START-OF-SELECTION.
+  DATA: gr_facade TYPE REF TO zcl_facade.
+  CREATE OBJECT gr_facade.
+  gr_facade->process_order( ).
