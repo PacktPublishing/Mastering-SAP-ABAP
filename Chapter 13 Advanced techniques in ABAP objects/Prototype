@@ -1,0 +1,73 @@
+*&---------------------------------------------------------------------*
+*& Report Z_PROTOTYPE
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT z_prototype.
+
+CLASS zcl_car DEFINITION ABSTRACT.
+  PUBLIC SECTION.
+    METHODS:
+      clone ABSTRACT
+        IMPORTING
+                  iv_color         TYPE string
+        RETURNING VALUE(ro_object) TYPE REF TO zcl_car.
+
+    METHODS:
+      create_car ABSTRACT
+        IMPORTING
+          iv_color TYPE string.
+
+ENDCLASS.                    "zcl_car_data DEFINITION
+
+CLASS zcl_car_detail DEFINITION INHERITING FROM zcl_car.
+  PUBLIC SECTION.
+
+    METHODS: clone REDEFINITION.
+    METHODS: create_car REDEFINITION.
+
+    DATA: type_of_car TYPE string,
+          color_car   TYPE string.
+
+ENDCLASS.                    "zcl_car_Detail DEFINITION
+
+CLASS zcl_car_detail IMPLEMENTATION.
+  METHOD create_car.
+
+    color_car = iv_color.
+
+    type_of_car = 'Car'.
+
+  ENDMETHOD.                    "create_car
+  METHOD clone.
+
+    DATA: gr_car TYPE REF TO zcl_car_detail.
+    CREATE OBJECT gr_car.
+
+    gr_car->color_car = iv_color.
+    gr_car->type_of_car = me->type_of_car.
+
+    ro_object = gr_car.
+
+  ENDMETHOD.                    "clone
+ENDCLASS.                    "zcl_car_detail IMPLEMENTATION
+
+CLASS zcl_factory DEFINITION.
+  PUBLIC SECTION.
+    CLASS-METHODS: run.
+ENDCLASS.                    "zcl_factory DEFINITION
+
+CLASS zcl_factory IMPLEMENTATION.
+  METHOD run.
+    DATA: gr_car TYPE REF TO zcl_car.
+    CREATE OBJECT gr_car TYPE zcl_car_detail.
+    gr_car->create_car( 'Blue' ).
+
+    DATA: gr_car2 TYPE REF TO zcl_car.
+    gr_car2 = gr_car->clone( 'Green' ).
+
+  ENDMETHOD.                    "run
+ENDCLASS.                    "zcl_factory IMPLEMENTATION
+
+START-OF-SELECTION.
+  zcl_factory=>run( ).
