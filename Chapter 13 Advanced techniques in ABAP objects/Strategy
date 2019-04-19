@@ -1,0 +1,106 @@
+*&---------------------------------------------------------------------*
+*& Report Z_STRATEGY
+*&---------------------------------------------------------------------*
+*&
+*&---------------------------------------------------------------------*
+REPORT z_strategy.
+
+INTERFACE lif_vat.
+
+  TYPES: t_price TYPE p LENGTH 10 DECIMALS 2.
+
+  METHODS: calculate_vat
+    IMPORTING
+              iv_price              TYPE t_price
+    RETURNING VALUE(rv_gross_price) TYPE t_price.
+ENDINTERFACE.
+
+CLASS material DEFINITION.
+
+  PUBLIC SECTION.
+
+    TYPES: t_price TYPE p LENGTH 10 DECIMALS 2.
+
+    METHODS: constructor
+      IMPORTING iv_vat TYPE REF TO lif_vat.
+
+ENDCLASS.
+
+CLASS material IMPLEMENTATION.
+  METHOD constructor.
+
+    DATA: lv_gross_price TYPE t_price.
+
+    lv_gross_price = iv_vat->calculate_vat( iv_price = 1000 ).
+
+    WRITE: / 'Material1 gross price:', lv_gross_price.
+
+  ENDMETHOD.
+ENDCLASS.
+
+CLASS zcl_vat7 DEFINITION.
+
+  PUBLIC SECTION.
+
+    INTERFACES lif_vat.
+
+    ALIASES: calculate_vat FOR lif_vat~calculate_vat.
+
+ENDCLASS.
+
+CLASS zcl_vat7 IMPLEMENTATION.
+  METHOD calculate_vat.
+
+    rv_gross_price = iv_price + ( iv_price * '0.07' ).
+
+  ENDMETHOD.
+ENDCLASS.
+
+CLASS zcl_vat32 DEFINITION.
+
+  PUBLIC SECTION.
+
+    INTERFACES lif_vat.
+
+    ALIASES: calculate_vat FOR lif_vat~calculate_vat.
+
+ENDCLASS.
+
+CLASS zcl_vat32 IMPLEMENTATION.
+  METHOD calculate_vat.
+
+    rv_gross_price = iv_price + ( iv_price * '0.32' ).
+
+  ENDMETHOD.
+ENDCLASS.
+
+CLASS mainapp DEFINITION.
+  PUBLIC SECTION.
+    CLASS-METHODS run.
+ENDCLASS.
+
+CLASS mainapp IMPLEMENTATION.
+  METHOD run.
+
+    DATA: lr_vat7      TYPE REF TO zcl_vat7,
+          lr_vat32     TYPE REF TO zcl_vat32,
+          lr_material1 TYPE REF TO material,
+          lr_material2 TYPE REF TO material.
+
+    CREATE OBJECT: lr_vat7,
+                   lr_vat32.
+
+    CREATE OBJECT lr_material1
+      EXPORTING
+        iv_vat = lr_vat7.
+
+    CREATE OBJECT lr_material2
+      EXPORTING
+        iv_vat = lr_vat32.
+
+  ENDMETHOD.
+ENDCLASS.
+
+START-OF-SELECTION.
+
+  mainapp=>run( ).
