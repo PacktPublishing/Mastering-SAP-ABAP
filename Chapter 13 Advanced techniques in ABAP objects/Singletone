@@ -5,8 +5,7 @@
 *&---------------------------------------------------------------------*
 REPORT z_singletone.
 
-CLASS zcl_singletone DEFINITION.
-
+CLASS zcl_singletone DEFINITION CREATE PRIVATE.
   PUBLIC SECTION.
 
     CLASS-DATA: lr_singletone TYPE REF TO zcl_singletone.
@@ -14,6 +13,7 @@ CLASS zcl_singletone DEFINITION.
     CLASS-METHODS: class_constructor,
       run.
 
+  PRIVATE SECTION.
     METHODS constructor.
 
 ENDCLASS.
