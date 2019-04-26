@@ -10,7 +10,7 @@ CLASS zcl_app DEFINITION.
     CLASS-METHODS: run.
 ENDCLASS.
 
-CLASS zcl_observator DEFINITION.
+CLASS zcl_observer DEFINITION.
   PUBLIC SECTION.
 
     TYPES:
@@ -25,30 +25,30 @@ CLASS zcl_observator DEFINITION.
     METHODS: create_doc IMPORTING doc_type TYPE string,
       constructor.
 
-    EVENTS: new EXPORTING VALUE(doc_type) TYPE string.
+    EVENTS: new_document_created EXPORTING VALUE(doc_type) TYPE string.
 ENDCLASS.
 
 CLASS zcl_user DEFINITION ABSTRACT.
   PUBLIC SECTION.
 
-    METHODS: notify_user ABSTRACT FOR EVENT new OF zcl_observator
+    METHODS: on_notification_received ABSTRACT FOR EVENT new_document_created OF zcl_observer
       IMPORTING doc_type.
 
 ENDCLASS.
 
 CLASS zcl_user1 DEFINITION INHERITING FROM  zcl_user.
   PUBLIC SECTION.
-    METHODS notify_user REDEFINITION .
+    METHODS on_notification_received REDEFINITION .
 ENDCLASS.
 
 CLASS zcl_user2 DEFINITION INHERITING FROM  zcl_user.
   PUBLIC SECTION.
-    METHODS notify_user REDEFINITION.
+    METHODS on_notification_received REDEFINITION.
 ENDCLASS.
 
-CLASS zcl_observator IMPLEMENTATION.
+CLASS zcl_observer IMPLEMENTATION.
   METHOD create_doc.
-    RAISE EVENT new EXPORTING doc_type = doc_type.
+    RAISE EVENT new_document_created EXPORTING doc_type = doc_type.
   ENDMETHOD.
   METHOD constructor.
 
@@ -66,7 +66,7 @@ CLASS zcl_observator IMPLEMENTATION.
 ENDCLASS.
 
 CLASS zcl_user1 IMPLEMENTATION.
-  METHOD notify_user.
+  METHOD on_notification_received.
 
     WRITE: / 'Notification User1 - New document', doc_type .
 
@@ -74,7 +74,7 @@ CLASS zcl_user1 IMPLEMENTATION.
 ENDCLASS.
 
 CLASS  zcl_user2 IMPLEMENTATION.
-  METHOD notify_user.
+  METHOD on_notification_received.
 
     WRITE: / 'Notification User2 - New document', doc_type.
 
@@ -84,19 +84,19 @@ ENDCLASS.
 CLASS zcl_app IMPLEMENTATION.
   METHOD run.
 
-    DATA: lr_observator TYPE REF TO zcl_observator,
+    DATA: lr_observer TYPE REF TO zcl_observer,
           lr_user1      TYPE REF TO zcl_user1,
           lr_user2      TYPE REF TO zcl_user2.
 
-    CREATE OBJECT: lr_observator.
+    CREATE OBJECT: lr_observer.
     CREATE OBJECT: lr_user1.
     CREATE OBJECT: lr_user2.
 
-    SET HANDLER lr_user1->notify_user FOR lr_observator.
-    SET HANDLER lr_user2->notify_user FOR lr_observator.
+    SET HANDLER lr_user1->on_notification_received FOR lr_observer.
+    SET HANDLER lr_user2->on_notification_received FOR lr_observer.
 
-    lr_observator->create_doc( 'Order' ).
-    lr_observator->create_doc( 'Invoice' ).
+    lr_observer->create_doc( 'Order' ).
+    lr_observer->create_doc( 'Invoice' ).
 
   ENDMETHOD.
 ENDCLASS.
