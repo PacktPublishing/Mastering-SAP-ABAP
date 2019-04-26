@@ -13,18 +13,14 @@ CLASS zcl_car DEFINITION ABSTRACT.
                   iv_color         TYPE string
         RETURNING VALUE(ro_object) TYPE REF TO zcl_car.
 
-    METHODS:
-      create_car ABSTRACT
-        IMPORTING
-          iv_color TYPE string.
-
 ENDCLASS.                    "zcl_car_data DEFINITION
 
 CLASS zcl_car_detail DEFINITION INHERITING FROM zcl_car.
   PUBLIC SECTION.
 
     METHODS: clone REDEFINITION.
-    METHODS: create_car REDEFINITION.
+    METHODS: constructor
+      IMPORTING iv_type TYPE string.
 
     DATA: type_of_car TYPE string,
           color_car   TYPE string.
@@ -32,42 +28,64 @@ CLASS zcl_car_detail DEFINITION INHERITING FROM zcl_car.
 ENDCLASS.                    "zcl_car_Detail DEFINITION
 
 CLASS zcl_car_detail IMPLEMENTATION.
-  METHOD create_car.
+  METHOD constructor.
 
-    color_car = iv_color.
-
-    type_of_car = 'Car'.
+    super->constructor( ).
+    type_of_car = iv_type.
 
   ENDMETHOD.                    "create_car
   METHOD clone.
 
-    DATA: gr_car TYPE REF TO zcl_car_detail.
-    CREATE OBJECT gr_car.
+    DATA: lr_car TYPE REF TO zcl_car_detail.
+    CREATE OBJECT lr_car
+      EXPORTING
+        iv_type = me->type_of_car.
 
-    gr_car->color_car = iv_color.
-    gr_car->type_of_car = me->type_of_car.
-
-    ro_object = gr_car.
+    lr_car->color_car = iv_color.
+    ro_object = lr_car.
 
   ENDMETHOD.                    "clone
 ENDCLASS.                    "zcl_car_detail IMPLEMENTATION
 
 CLASS zcl_factory DEFINITION.
   PUBLIC SECTION.
-    CLASS-METHODS: run.
+    METHODS:
+      get_car
+        IMPORTING iv_name       TYPE string
+                  iv_color      TYPE string
+        RETURNING VALUE(rv_car) TYPE REF TO zcl_car,
+      constructor.
+  PRIVATE SECTION.
+    TYPES:
+      BEGIN OF ts_prototype,
+        name      TYPE string,
+        prototype TYPE REF TO zcl_car,
+      END OF ts_prototype,
+      tt_prototypes TYPE STANDARD TABLE OF ts_prototype.
+    DATA lt_prototypes TYPE tt_prototypes.
 ENDCLASS.                    "zcl_factory DEFINITION
 
 CLASS zcl_factory IMPLEMENTATION.
-  METHOD run.
-    DATA: gr_car TYPE REF TO zcl_car.
-    CREATE OBJECT gr_car TYPE zcl_car_detail.
-    gr_car->create_car( 'Blue' ).
+  METHOD constructor.
+    DATA ls_prototype TYPE ts_prototype.
+    ls_prototype-name = 'Car1'.
+    CREATE OBJECT ls_prototype-prototype TYPE zcl_car_detail
+      EXPORTING
+        iv_type = 'Car1'.
+    APPEND ls_prototype TO lt_prototypes.
+  ENDMETHOD.
 
-    DATA: gr_car2 TYPE REF TO zcl_car.
-    gr_car2 = gr_car->clone( 'Green' ).
+  METHOD get_car.
+    READ TABLE lt_prototypes WITH KEY name = iv_name ASSIGNING FIELD-SYMBOL(<fs_prototype>).
+    IF sy-subrc = 0.
+      rv_car = <fs_prototype>-prototype->clone( iv_color ).
+    ENDIF.
+  ENDMETHOD.
 
-  ENDMETHOD.                    "run
 ENDCLASS.                    "zcl_factory IMPLEMENTATION
 
 START-OF-SELECTION.
-  zcl_factory=>run( ).
+  DATA: lr_factory TYPE REF TO zcl_factory,
+        lr_car     TYPE REF TO zcl_car.
+  CREATE OBJECT lr_factory.
+  lr_car = lr_factory->get_car( EXPORTING iv_name = 'Car1' iv_color = 'Blue' ).
