@@ -15,7 +15,7 @@ INTERFACE lif_vat.
     RETURNING VALUE(rv_gross_price) TYPE t_price.
 ENDINTERFACE.
 
-CLASS material DEFINITION.
+CLASS zcl_material DEFINITION.
 
   PUBLIC SECTION.
 
@@ -26,14 +26,14 @@ CLASS material DEFINITION.
 
 ENDCLASS.
 
-CLASS material IMPLEMENTATION.
+CLASS zcl_material IMPLEMENTATION.
   METHOD constructor.
 
     DATA: lv_gross_price TYPE t_price.
 
     lv_gross_price = iv_vat->calculate_vat( iv_price = 1000 ).
 
-    WRITE: / 'Material1 gross price:', lv_gross_price.
+    WRITE: / 'Material gross price:', lv_gross_price.
 
   ENDMETHOD.
 ENDCLASS.
@@ -74,18 +74,18 @@ CLASS zcl_vat32 IMPLEMENTATION.
   ENDMETHOD.
 ENDCLASS.
 
-CLASS mainapp DEFINITION.
+CLASS zcl_mainapp DEFINITION.
   PUBLIC SECTION.
     CLASS-METHODS run.
 ENDCLASS.
 
-CLASS mainapp IMPLEMENTATION.
+CLASS zcl_mainapp IMPLEMENTATION.
   METHOD run.
 
     DATA: lr_vat7      TYPE REF TO zcl_vat7,
           lr_vat32     TYPE REF TO zcl_vat32,
-          lr_material1 TYPE REF TO material,
-          lr_material2 TYPE REF TO material.
+          lr_material1 TYPE REF TO zcl_material,
+          lr_material2 TYPE REF TO zcl_material.
 
     CREATE OBJECT: lr_vat7,
                    lr_vat32.
@@ -103,4 +103,4 @@ ENDCLASS.
 
 START-OF-SELECTION.
 
-  mainapp=>run( ).
+  zcl_mainapp=>run( ).
