@@ -28,13 +28,13 @@ CLASS zcl_decorator DEFINITION INHERITING FROM zcl_doc_output.
   PUBLIC SECTION.
     METHODS:
       constructor
-        IMPORTING ir_decorator TYPE REF TO zcl_doc_output,
+        IMPORTING ir_core TYPE REF TO zcl_doc_output,
 
       zcl_doc_output REDEFINITION.
 
   PRIVATE SECTION.
 
-    DATA: lr_decorator TYPE REF TO zcl_doc_output.
+    DATA: lr_core TYPE REF TO zcl_doc_output.
 ENDCLASS.
 
 
@@ -42,12 +42,12 @@ CLASS zcl_decorator IMPLEMENTATION.
 
   METHOD constructor.
     super->constructor( ).
-    me->lr_decorator = ir_decorator.
+    me->lr_core = ir_core.
   ENDMETHOD.
 
   METHOD zcl_doc_output.
-    CHECK lr_decorator IS BOUND.
-    lr_decorator->zcl_doc_output( ).
+    CHECK lr_core IS BOUND.
+    lr_core->zcl_doc_output( ).
 
   ENDMETHOD.
 
@@ -63,7 +63,8 @@ ENDCLASS.
 
 CLASS zcl_inquiry IMPLEMENTATION.
   METHOD zcl_doc_output.
-    WRITE: / 'Generating Inquiry'.
+    super->zcl_doc_output( ).
+    WRITE: ': Generating Inquiry'.
   ENDMETHOD.
 ENDCLASS.
 
@@ -76,7 +77,8 @@ ENDCLASS.
 
 CLASS zcl_contract IMPLEMENTATION.
   METHOD zcl_doc_output.
-    WRITE: / 'Generating Contract'.
+    super->zcl_doc_output( ).
+    WRITE: ': Generating Contract'.
   ENDMETHOD.
 ENDCLASS.
 
@@ -89,7 +91,8 @@ ENDCLASS.
 
 CLASS zcl_sched_agree IMPLEMENTATION.
   METHOD zcl_doc_output.
-    WRITE: / 'Generating Scheduling Agreements'.
+    super->zcl_doc_output( ).
+    WRITE: ': Generating Scheduling Agreements'.
   ENDMETHOD.
 ENDCLASS.
 
@@ -102,7 +105,8 @@ ENDCLASS.
 
 CLASS zcl_sales_order IMPLEMENTATION.
   METHOD zcl_doc_output.
-    WRITE: / 'Generating Sales Order'.
+    super->zcl_doc_output( ).
+    WRITE: ': Generating Sales Order'.
   ENDMETHOD.
 ENDCLASS.
 
@@ -115,7 +119,8 @@ ENDCLASS.
 
 CLASS zcl_deliv_doc IMPLEMENTATION.
   METHOD zcl_doc_output.
-    WRITE: / 'Generating Delivery document'.
+    super->zcl_doc_output( ).
+    WRITE: ': Generating Delivery document'.
   ENDMETHOD.
 ENDCLASS.
 
@@ -128,36 +133,38 @@ ENDCLASS.
 CLASS zcl_main IMPLEMENTATION.
   METHOD run.
 
-    DATA: lr_decorator       TYPE REF TO zcl_doc_output,
+    DATA: lr_core            TYPE REF TO zcl_doc_output,
           lr_decorator_inq   TYPE REF TO zcl_doc_output,
           lr_decorator_cont  TYPE REF TO zcl_doc_output,
           lr_decorator_sched TYPE REF TO zcl_doc_output,
           lr_decorator_sales TYPE REF TO zcl_doc_output,
           lr_decorator_deliv TYPE REF TO zcl_doc_output.
 
-    CREATE OBJECT lr_decorator TYPE zcl_sd_doc_output.
+    CREATE OBJECT lr_core TYPE zcl_sd_doc_output.
 
     CREATE OBJECT lr_decorator_inq TYPE zcl_inquiry
       EXPORTING
-        ir_decorator = lr_decorator.
+        ir_core = lr_core.
 
     CREATE OBJECT lr_decorator_cont TYPE zcl_contract
       EXPORTING
-        ir_decorator = lr_decorator.
+        ir_core = lr_core.
 
     CREATE OBJECT lr_decorator_sched TYPE zcl_sched_agree
       EXPORTING
-        ir_decorator = lr_decorator.
+        ir_core = lr_core.
 
     CREATE OBJECT lr_decorator_sales TYPE zcl_sales_order
       EXPORTING
-        ir_decorator = lr_decorator.
+        ir_core = lr_core.
+
+    " Decorators can be chained
 
     CREATE OBJECT lr_decorator_deliv TYPE zcl_deliv_doc
       EXPORTING
-        ir_decorator = lr_decorator.
+        ir_core = lr_decorator_sales.
 
-    lr_decorator->zcl_doc_output( ).
+    lr_core->zcl_doc_output( ).
     lr_decorator_inq->zcl_doc_output( ).
     lr_decorator_cont->zcl_doc_output( ).
     lr_decorator_sched->zcl_doc_output( ).
