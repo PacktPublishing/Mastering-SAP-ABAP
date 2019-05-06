@@ -368,26 +368,26 @@ MODULE pai_100 INPUT.
     WHEN 'RES'.
 
       IF gv_carrid IS NOT INITIAL AND lv_dyn_where IS INITIAL.
-        CONCATENATE 'carrid = gv_carrid' '' INTO lv_dyn_where SEPARATED BY space.
+        lv_dyn_where = |carrid = gv_carrid|.
       ENDIF.
 
       IF gv_connid IS NOT INITIAL AND lv_dyn_where IS INITIAL.
-        CONCATENATE 'connid = gv_connid' '' INTO lv_dyn_where SEPARATED BY space.
+        lv_dyn_where = |connid = gv_connid|.
       ELSEIF gv_connid IS NOT INITIAL AND lv_dyn_where IS NOT INITIAL.
-        CONCATENATE lv_dyn_where 'and connid = gv_connid' INTO lv_dyn_where SEPARATED BY space.
+        lv_dyn_where = |{ lv_dyn_where } and connid = gv_connid|.
       ENDIF.
 
       IF gv_domestic IS NOT INITIAL AND lv_dyn_where IS INITIAL.
-        CONCATENATE 'countryfr EQ s~countryto' '' INTO lv_dyn_where SEPARATED BY space.
+        lv_dyn_where = |countryfr EQ s~countryto |.
       ELSEIF gv_domestic IS NOT INITIAL AND lv_dyn_where IS INITIAL.
-        CONCATENATE lv_dyn_where 'and countryfr EQ s~countryto' INTO lv_dyn_where SEPARATED BY space.
+        lv_dyn_where = |{ lv_dyn_where } and countryfr EQ s~countryto|.
       ENDIF.
 
 
       IF gv_international IS NOT INITIAL AND lv_dyn_where IS INITIAL.
-        CONCATENATE 'countryfr NE s~countryto' '' INTO lv_dyn_where SEPARATED BY space.
+        lv_dyn_where = |countryfr NE s~countryto |.
       ELSEIF gv_international IS NOT INITIAL AND lv_dyn_where IS INITIAL.
-        CONCATENATE lv_dyn_where 'and countryfr NE s~countryto' INTO lv_dyn_where SEPARATED BY space.
+        lv_dyn_where = |{ lv_dyn_where } and countryfr NE s~countryto|.
       ENDIF.
 
       SELECT carrid connid
