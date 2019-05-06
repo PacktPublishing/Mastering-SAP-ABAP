@@ -379,14 +379,14 @@ MODULE pai_100 INPUT.
 
       IF gv_domestic IS NOT INITIAL AND lv_dyn_where IS INITIAL.
         lv_dyn_where = |countryfr EQ s~countryto |.
-      ELSEIF gv_domestic IS NOT INITIAL AND lv_dyn_where IS INITIAL.
+      ELSEIF gv_domestic IS NOT INITIAL AND lv_dyn_where IS NOT INITIAL.
         lv_dyn_where = |{ lv_dyn_where } and countryfr EQ s~countryto|.
       ENDIF.
 
 
       IF gv_international IS NOT INITIAL AND lv_dyn_where IS INITIAL.
         lv_dyn_where = |countryfr NE s~countryto |.
-      ELSEIF gv_international IS NOT INITIAL AND lv_dyn_where IS INITIAL.
+      ELSEIF gv_international IS NOT INITIAL AND lv_dyn_where IS NOT INITIAL.
         lv_dyn_where = |{ lv_dyn_where } and countryfr NE s~countryto|.
       ENDIF.
 
