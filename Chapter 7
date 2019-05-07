@@ -346,7 +346,6 @@ MODULE pbo_100 OUTPUT.
 
   ENDIF.
 
-*      i_structure_name              = 'SPFLI'
 ENDMODULE.
 *&---------------------------------------------------------------------*
 *&      Module  PAI_100  INPUT
@@ -355,7 +354,7 @@ ENDMODULE.
 *----------------------------------------------------------------------*
 MODULE pai_100 INPUT.
 
-  DATA: lv_dyn_where TYPE string.
+  DATA: lv_dyn_where TYPE string VALUE '1 = 1'.
 
   CASE ok_code.
     WHEN 'BACK'.
@@ -366,30 +365,23 @@ MODULE pai_100 INPUT.
     WHEN 'EXIT'.
       LEAVE PROGRAM.
     WHEN 'RES'.
-
-      IF gv_carrid IS NOT INITIAL AND lv_dyn_where IS INITIAL.
-        lv_dyn_where = |carrid = gv_carrid|.
+ 
+      IF gv_carrid IS NOT INITIAL.
+        lv_dyn_where = |{ lv_dyn_where } and carrid = '{ gv_carrid }'|.
       ENDIF.
-
-      IF gv_connid IS NOT INITIAL AND lv_dyn_where IS INITIAL.
-        lv_dyn_where = |connid = gv_connid|.
-      ELSEIF gv_connid IS NOT INITIAL AND lv_dyn_where IS NOT INITIAL.
-        lv_dyn_where = |{ lv_dyn_where } and connid = gv_connid|.
+ 
+      IF gv_connid IS NOT INITIAL.
+        lv_dyn_where = |{ lv_dyn_where } and connid = '{ gv_connid }'|.
       ENDIF.
-
-      IF gv_domestic IS NOT INITIAL AND lv_dyn_where IS INITIAL.
-        lv_dyn_where = |countryfr EQ s~countryto |.
-      ELSEIF gv_domestic IS NOT INITIAL AND lv_dyn_where IS NOT INITIAL.
+ 
+      IF gv_domestic IS NOT INITIAL.
         lv_dyn_where = |{ lv_dyn_where } and countryfr EQ s~countryto|.
       ENDIF.
-
-
-      IF gv_international IS NOT INITIAL AND lv_dyn_where IS INITIAL.
-        lv_dyn_where = |countryfr NE s~countryto |.
-      ELSEIF gv_international IS NOT INITIAL AND lv_dyn_where IS NOT INITIAL.
+ 
+      IF gv_international IS NOT INITIAL.
         lv_dyn_where = |{ lv_dyn_where } and countryfr NE s~countryto|.
-      ENDIF.
-
+      ENDIF. 
+ 
       SELECT carrid connid
              countryfr cityfrom airpfrom
              countryto cityto airpto
