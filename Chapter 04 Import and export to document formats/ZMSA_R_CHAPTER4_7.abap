@@ -62,7 +62,7 @@ CLASS lcl_demo IMPLEMENTATION.
 
     CALL METHOD OF lo_selection 'TypeText'
       EXPORTING
-        #1 = 'First World Report with OLE'.
+        #1 = 'First Word Report with OLE'.
 
     SELECT carrname FROM scarr INTO TABLE lt_carrname.
 
