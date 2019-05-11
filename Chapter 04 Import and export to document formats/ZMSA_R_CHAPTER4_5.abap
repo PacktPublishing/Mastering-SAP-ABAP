@@ -21,7 +21,7 @@ ENDCLASS.
 
 CLASS lcl_demo IMPLEMENTATION.
   METHOD main.
-    DATA: lv_filename TYPE localfile VALUE 'c:/temp/testfile4_5.xls'.
+    DATA: lv_filename TYPE localfile VALUE 'c:/temp/testfile4_5.xlsx'.
     DATA: lt_excel TYPE TABLE OF alsmex_tabline.
 
 
