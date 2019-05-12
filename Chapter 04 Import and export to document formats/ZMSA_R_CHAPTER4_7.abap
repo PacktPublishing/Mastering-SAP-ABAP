@@ -35,7 +35,7 @@ CLASS lcl_demo IMPLEMENTATION.
     DATA: lv_carrname TYPE s_carrname.
 
 
-    CREATE OBJECT lo_word 'WORD.DOCUMENT'.
+    CREATE OBJECT lo_word 'WORD.Application'.
     SET PROPERTY OF lo_word 'Visible' = 1.
 
     CALL METHOD OF lo_word 'Documents' = lo_doc.
