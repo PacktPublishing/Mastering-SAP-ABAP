@@ -51,3 +51,4 @@
       parameter_error            = 5
       x_error                    = 6
       enqueue_error              = 7
+	  OTHERS = 8.
