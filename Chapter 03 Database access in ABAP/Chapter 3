@@ -61,7 +61,7 @@ SELECT sf~mandt sf~carrid sf~connid sf~fldate
   JOIN sbook AS sb
     ON sb~carrid = sf~carrid
    AND sb~connid = sf~connid
-   AND sb~fldate = sf~connid.
+   AND sb~fldate = sf~fldate.
 
 
 SELECT mandt carrid connid fldate
