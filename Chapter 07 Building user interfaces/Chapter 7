@@ -366,6 +366,10 @@ MODULE pai_100 INPUT.
       LEAVE PROGRAM.
     WHEN 'RES'.
  
+      IF lv_dyn_where IS INITIAL.
+        lv_dyn_where = '1 = 1'.
+      ENDIF.
+      
       IF gv_carrid IS NOT INITIAL.
         lv_dyn_where = |{ lv_dyn_where } and carrid = '{ gv_carrid }'|.
       ENDIF.
@@ -382,14 +386,14 @@ MODULE pai_100 INPUT.
         lv_dyn_where = |{ lv_dyn_where } and countryfr NE s~countryto|.
       ENDIF. 
  
-      SELECT carrid connid
-             countryfr cityfrom airpfrom
-             countryto cityto airpto
-             fltime deptime arrtime distance
-             distid fltype period
+      SELECT carrid, connid,
+             countryfr, cityfrom, airpfrom,
+             countryto, cityto, airpto,
+             fltime, deptime, arrtime, distance,
+             distid, fltype, period
         FROM spfli AS s
-        INTO CORRESPONDING FIELDS OF TABLE lt_color
-        WHERE (lv_dyn_where).
+        WHERE (lv_dyn_where)
+        INTO CORRESPONDING FIELDS OF TABLE @lt_color.
 
       CLEAR lv_dyn_where.
   ENDCASE.
