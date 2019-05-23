@@ -1,0 +1,10 @@
+REPORT zbackround_job.
+DATA: lt_line TYPE TABLE OF sflight,
+      ls_line LIKE LINE OF lt_line.
+
+SELECT SINGLE * FROM sflight INTO ls_line WHERE carrid EQ 'AA' AND connid
+       EQ '0017'.
+    IF sy-subrc EQ 0.
+      ls_line-price = 700.
+  UPDATE sflight FROM ls_line.
+ENDIF.
