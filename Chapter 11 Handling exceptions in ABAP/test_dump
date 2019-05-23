@@ -1,0 +1,5 @@
+REPORT ztestdump.
+DATA : lv_count TYPE i VALUE 4,
+       lv_div TYPE i,
+lv_denom TYPE i VALUE 0.
+lv_div = lv_count / lv_denom.
