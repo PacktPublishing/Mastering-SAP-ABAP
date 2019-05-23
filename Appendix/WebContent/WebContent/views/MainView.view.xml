@@ -1,0 +1,9 @@
+<mvc:View
+ controllerName="my.namespace.controllers.MainView"
+ xmlns="sap.m"
+ xmlns:mvc="sap.ui.core.mvc"
+ displayBlock="true">
+ <App id="app"
+ backgroundColor="#fff"
+/>
+</mvc:View>
