@@ -1,0 +1,83 @@
+{
+	"_version": "1.1.0",
+	"sap.app": {
+		"_version": "1.0.0",
+		"id": "appId",
+		"type": "application",
+		"i18n": "i18n/i18n.properties",
+		"dataSources": {
+			"staticJSONSource": {
+				"uri": "staticData/data.json",
+				"type": "JSON"
+			},
+			"mainService": {
+				"uri": "/sap/opu/odata/sap/ZODATA_SERVICE",
+				"type": "OData",
+				"settings": {
+					"odataVersion": "2.0"
+				}
+			}
+		}
+	},
+
+	"sap.ui": {
+		"_version": "1.0.0",
+		"technology": "UI5",
+		"deviceTypes": {
+			"desktop": true,
+			"tablet": true,
+			"phone": true
+		}
+	},
+
+	"sap.ui5": {
+		"_version": "1.0.0",
+		"rootView": "my.namespace.views.MainView",
+		"controlId": "app",
+		"controlAggregation": "pages",
+		"models": {
+			"i18n": {
+				"type": "sap.ui.model.resource.ResourceModel",
+				"settings": {
+					"bundleName": "my.namespace.i18n.i18n"
+				}
+			},
+			"staticModel": {
+				"type": "sap.ui.model.json.JSONModel",
+				"dataSource": "staticJSONSource"
+			},
+			"": {
+				"dataSource": "mainService"
+			}
+		},
+		"routing": {
+			"config": {
+				"routerClass": "sap.m.routing.Router",
+				"viewType": "XML",
+				"viewPath": "my.namespace.views",
+				"controlId": "app",
+				"controlAggregation": "pages",
+				"clearTarget": false,
+				"transition": "show",
+				"bypassed": {
+					"target": ["search"]
+				}
+			},
+			"routes": [{
+				"pattern": "search",
+				"name": "search",
+				"target": "search"
+			}],
+			"targets": {
+				"search": {
+					"viewName": "SearchView",
+					"viewLevel": 1
+				},
+				"invalid": {
+					"viewName": "NotFound",
+					"viewLevel": 1
+				}
+			}
+		}
+	}
+}
