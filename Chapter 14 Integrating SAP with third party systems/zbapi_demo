@@ -1,0 +1,19 @@
+FUNCTION zbapi_demo.
+*"----------------------------------------------------------------------
+*"*"Local Interface:
+*" IMPORTING
+*" VALUE(CARRID) TYPE ZBAPISFLIGHT-PLANETYPE
+*" EXPORTING
+*" VALUE(RETURN) TYPE BAPIRET2
+*" TABLES
+*" ZSFLIGHT STRUCTURE ZBAPISFLIGHT
+*"----------------------------------------------------------------------
+
+CLEAR zsflight .
+SELECT planetype seatsmax_b seatsocc_b seatsmax_f seatsocc_f
+    FROM sflight INTO TABLE zsflight
+    WHERE carrid EQ carrid.
+      IF sy-subrc NE 0.
+        CLEAR zsflight .
+      ENDIF.
+ENDFUNCTION.
