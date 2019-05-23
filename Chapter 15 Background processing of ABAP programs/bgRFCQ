@@ -1,0 +1,15 @@
+DATA: lr_destination TYPE REF TO if_bgrfc_destination_inbound,
+      lr_unit TYPE REF TO if_qrfc_unit_inbound,
+      lv_qname TYPE qrfc_queue_name,
+      lv_destination_name TYPE bgrfc_destination_inbound.
+
+lv_Destination_name = 'SAMPLE_DESTINATION'.
+lr_destination = cl_bgrfc_destination_inbound=>create( lv_destination_name).
+lr_unit = lr_destination->create_qrfc_unit( ).
+TRY.
+   CALL FUNCTION 'SAMPLE_RFC_FUNCTION' IN BACKGROUND UNIT lr_unit.
+   CALL FUNCTION 'ANOTHER_RFC_FUNCTION' IN BACKGROUND UNIT lr_unit.
+   lr_unit->add_queue_name_inbound( 'QUEUENAME' ).
+   COMMIT WORK.
+  CATCH cx_bgrfc_error INTO DATA(lx_error).
+ENDTRY.
