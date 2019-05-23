@@ -1,0 +1,12 @@
+DATA: lr_destination TYPE REF TO if_bgrfc_destination_outbound,
+      lr_unit TYPE REF TO if_trfc_unit_outbound,
+      lv_destination_name TYPE bgrfc_dest_name_outbound.
+
+lv_destination_name = 'SAMPLE_DESTINATION'.
+lr_destination = cl_bgrfc_destination_outbound=>create( lv_destination_name).
+lr_unit = lr_destination->create_trfc_unit( ).
+
+CALL FUNCTION 'FUNCTION_1' IN BACKGROUND_UNIT lr_unit.
+CALL FUNCTION 'FUNCTION_2' IN BACKGROUND_UNIT lr_unit.
+
+COMMIT WORK.
