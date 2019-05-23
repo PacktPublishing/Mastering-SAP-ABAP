@@ -23,7 +23,7 @@ ENDCLASS.
 
 CLASS lcl_demo IMPLEMENTATION.
   METHOD main.
-    DATA: lv_filename TYPE localfile VALUE 'c:/temp/testfile4_6.xls'.
+    DATA: lv_filename TYPE localfile VALUE 'c:\temp\testfile4_6.xls'.
     DATA: lo_excel TYPE ole2_object.
     DATA: lo_workbook TYPE ole2_object.
     DATA: lo_sheet TYPE ole2_object.
