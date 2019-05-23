@@ -1,0 +1,8 @@
+DATA: lt_value_domain TYPE TABLE OF dd07v.
+
+CALL FUNCTION 'DD_DOMVALUES_GET'
+  EXPORTING
+    text = 'X'
+    domname = 'ZERPD_FIRST_DOMAIN'
+  TABLES
+    dd07v_tab = lt_value_domain.
