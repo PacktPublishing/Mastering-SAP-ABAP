@@ -25,7 +25,7 @@ CLASS lcl_demo IMPLEMENTATION.
     DATA: lt_bkpf_users TYPE TABLE OF bkpf.
     DATA: users_tab TYPE TABLE OF usr02.
     DATA: users_structure TYPE usr02.
-    DATA: lv_message TYPE string.
+    DATA: lv_message TYPE char128.
 
     SELECT DISTINCT usnam FROM bkpf INTO CORRESPONDING FIELDS OF TABLE lt_bkpf_users WHERE bldat = sy-datum.
     SELECT * FROM usr02 APPENDING TABLE users_tab
