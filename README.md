@@ -52,6 +52,11 @@ Software:
 - Frontend: SAPGUI, Adobe LiveCycle Designer 8+
 - Backend: at least SAP ERP ECC 6.0, Adobe Document Server, for work with NEW SQL at least 7.40 SP8 version.
 - To work on UI5 applications—modern browser with Internet access and SAP Cloud trial account
+
+## Code in Action
+
+Click on the following link to see the Code in Action: [Click here to view the videos](http://bit.ly/2M4ILyK)
+
 We also provide a PDF file that has color images of the screenshots/diagrams used in this book. [Click here to download it](https://www.packtpub.com/sites/default/files/downloads/9781787288942_ColorImages.pdf).
 
 ### Related products
