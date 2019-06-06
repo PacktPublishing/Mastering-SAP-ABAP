@@ -40,7 +40,11 @@ CLASS lcl_demo IMPLEMENTATION.
         EXPORTING
           client  = sy-mandt
           user    = users_structure-bname
-          message = lv_message.
+          message = lv_message
+		 EXCEPTIONS
+         USER_NOT_FOUND       = 1
+         OTHERS               = 2
+         .
     ENDLOOP.
 
   ENDMETHOD.
