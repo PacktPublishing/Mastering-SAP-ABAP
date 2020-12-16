@@ -1,0 +1,13 @@
+TYPES: BEGIN OF ts_type,
+			 first_data TYPE string,
+			second_data TYPE i,
+			third_data TYPE c,
+END OF ts_type.
+
+DATA : lt_type TYPE STANDARD TABLE OF ts_type.
+
+LOOP AT lt_type ASSIGNING FIELD-SYMBOL(<fs>).
+			<fs>-first_data = 'First_data'.
+			<fs>-second_data = 2.
+			<fs>-third_data = 'X'.
+ENDLOOP.
